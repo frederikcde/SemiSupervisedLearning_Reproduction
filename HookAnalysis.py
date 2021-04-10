@@ -9,19 +9,19 @@ VERSTION:
 
 AUTHORS: 
     Emile Lampe
-    ...
-    ...
+    4451090
+    e.a.k.lampe@student.tudelft.nl
     
     Frederik Collot d'Escury
     4668928
     f.a.g.collotdescury@student.tudelft.nl
     
-OBJECTIVE:
+OBJECTIVE AND NOTES:
     This code aims to provide graphical representations of the trained semi-supervised deep generative model. The deep generative model used is provided
-    by the author of the paper D.P. Kingma. This code evaluates the output files of the model (hook.txt) for the M1 + M2 stacked models.
-    
-USER GUIDE:
-    
+    by the author of the paper D.P. Kingma. This code evaluates the output files of the model (hook.txt) for the M1 + M2 stacked models. The default HookFiles
+    directory as included in the github contains output hook_XXXXXX.txt files created by iterations of D.P. Kingma's code as run by the authors of the reproduction. For
+    accurate results, replace these default hook_XXXXXX.txt files with outputs of your own executions of the original code. XXXXXX should be replaced by the number
+    of training points that the algorithm is trained with.  
 
 CODE REPRODUCTION REPOSITORY:
     https://github.com/frederikcde/SemiSupervisedLearning_Reproduction
@@ -48,7 +48,9 @@ current_dir = os.path.dirname(__file__)
 hook_dir = current_dir + "/HookFiles/"
 # Obtain output directory
 output_dir = current_dir + "/Output/"
-os.mkdir(output_dir)
+
+if os.path.exists(output_dir) == False:
+    os.mkdir(output_dir)
 
 # Define training set sizes to analyse
 training_set_sizes = [10000, 20000]
@@ -60,20 +62,24 @@ benchmark_sample_size = 50000
 benchmark_file_name = hook_dir + "hook_" + str(benchmark_sample_size) + ".txt"
 benchmark_hook = np.genfromtxt(benchmark_file_name)
 
+# Set font size for plots
+font_size = 16
+plt.rcParams.update({'font.size': font_size})
+
 ########################################################################
 # PERFORM ANALSYIS #####################################################
 ########################################################################
 
 ############### Initialize figures ###############
 
-error_figure = plt.figure(figsize=(10,5))
+error_figure = plt.figure(figsize=(15,7))
 error_figure.suptitle("Comparison DGN convergence for different number of training points")
 # Test error Figure
 ax1 = error_figure.add_subplot(121)
 ax1.set_title("Test Error")
 ax1.set_ylabel("Test Error [-]")
 ax1.set_xlabel("Epoch Number")
-ax1.plot(benchmark_hook[:, 1], benchmark_hook[:, 3], label="Benchmark")
+ax1.plot(benchmark_hook[:, 1], benchmark_hook[:, 3], label="Benchmark", linestyle="dashed", linewidth=0.5)
 ax1.grid()
 ax1.set_yscale("log")
 # Validation Error figure
@@ -81,12 +87,12 @@ ax2 = error_figure.add_subplot(122)
 ax2.set_title("Validation Error")
 ax2.set_ylabel("Validation Error [-]")
 ax2.set_xlabel("Epoch Number")
-ax2.plot(benchmark_hook[:, 1], benchmark_hook[:, 4], label="Benchmark")
+ax2.plot(benchmark_hook[:, 1], benchmark_hook[:, 4], label="Benchmark", linestyle="dashed", linewidth=0.5)
 ax2.grid()
 ax2.set_yscale("log")
 
 # Delta w.r.t. benchmark
-delta_figure = plt.figure(figsize=(10,5))
+delta_figure = plt.figure(figsize=(15,7))
 delta_figure.suptitle("Training point difference w.r.t. Benchmark ")
 # Test error Figure
 ax3 = delta_figure.add_subplot(121)
@@ -119,10 +125,10 @@ for current_training_set in training_set_sizes:
     delta_test_error = np.add(test_errors, -benchmark_hook[:, 4])
     
     # Plot graphs
-    ax1.plot(epochs, test_errors, label=f"Training points = {current_training_set}")
-    ax2.plot(epochs, valid_errors, label=f"Training points = {current_training_set}")
-    ax3.plot(epochs, delta_test_error, label=f"{current_training_set} w.r.t. benchmark")
-    ax4.plot(epochs, delta_valid_error, label=f"{current_training_set} w.r.t. benchmark")
+    ax1.plot(epochs, test_errors, label=f"Training points = {current_training_set}", linestyle="dashed", linewidth=0.5)
+    ax2.plot(epochs, valid_errors, label=f"Training points = {current_training_set}", linestyle="dashed", linewidth=0.5)
+    ax3.plot(epochs, delta_test_error, label=f"{current_training_set} w.r.t. benchmark", linestyle="dashed", linewidth=0.5)
+    ax4.plot(epochs, delta_valid_error, label=f"{current_training_set} w.r.t. benchmark", linestyle="dashed", linewidth=0.5)
     
     
 ax1.legend()
