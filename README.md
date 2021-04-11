@@ -1,6 +1,21 @@
 # SemiSupervisedLearning_Reproduction
 This repository contains all files related to the student effort to recreate the paper 'Semi-supervised Learning with Deep Generative Models' by D.P. Kingma
 
+## Introduction 
+The aim of this blog post is to discuss the results of our experiments regarding the paper *Semi-Supervised Learning with Deep Generative Models* by D.P. Kingma, D.J. Rezende, S. Mohamed and M. Welling (2014). The experiments we have done are an extension of those in the paper. In this post we will analyze the influence that the size of the dataset has on the performance of the semi-supervised learning algorithm.
+
+## What is semi-supervised learning?
+The fuel of every machine learning model is data. Enormous amounts of data are needed to adjust what are often hundreds of parameters in such a way that a model is able to make a useful production. In order for the model to learn from all this information, a big part of machine learning relies on labelled data. This way, the prediction made by the model can be compared to the actual piece of information and thereby be considered correct or incorrect. The process of labelling data is an extensive (and often expensive) job. Luckily, there have been plenty of projects targeted at creating large labelled datasets. Perhaps the most famous example of this is MNIST; a dataset of 70,000 labelled handwritten digits, and also the dataset used for our experiments. But what if only a small subset of the data has labels available? This problem is being researched in the field of semi-supervised learning. By using a small amount of labelled data, big increases in performance can be obtained. Kingma et al. asked themselves the following question for their paper: “How can properties of the data be used to improve decision boundaries and to allow for classification that is more accurate than that based on classifiers constructed using the labelled data alone?” How they tried to answer this question, and what we did to broaden the scope of these answers will be discussed next.
+
+## Model Construction
+There are multiple approaches towards semi-supervised learning. For this blog post, we won’t go into details of all the different types, but some examples are algorithms based on a self-training scheme (Rosenberg et al., 2005), Transductive SVMs (Joachims, 1999), graph-based methods, neural network-based approaches and the Manifold Tangent Classifier (Rifai et al, 2011). All of these approaches have their own set of advantages and costs. Kingma et al. decided to use generative models for their paper. This means that the semi-supervised learning problem will try to predict the absent information from the dataset. As there are many different algorithms for semi-supervised learning, there are also a lot of approaches towards generative models to choose from. The paper argues that from these options a generalised and scalable probabilistic approach is missing. They wrote down the following four key points in which they tried to address this problem:
+* Describe a new framework for semi-supervised learning with generative models, consisting of the fusion of probabilistic modelling and deep neural networks.
+*
+The algorithm consists of two different models. The first is the *latent-feature discriminative model (**M1**)*. This model was used to create features of the data that can be used to cluster related observations without most of the labels. M1 is itself a deep generative model, so that the learned features will be more robust than with a linear embedding. The second model is the actual *generative semi-supervised model (**M2**)*. It is a probabilistic model that uses a latent variable y combined with an independent continuous latent variable z to describe the process of generating the data. Because these variables are independent, the class specification can be separated from the writing style of the digit. The unlabelled data is classified as inference, which means that predictions about the data are being made by the existing model. When these two main models are combined, the result is a *stacked generative semi-supervised model (**M1+M2**)*. The first model is used to learn a new latent representation z1, after which the second model is learned using the embeddings of z1.
+
+## Dependencies Between the Random Variables
+In order to create probability distributions for your random variables obtained by experiment or survey, it is necessary to have independent and identically distributed random variables. The models described above do not meet this requirement, as there exist nonlinear, non-conjugate dependencies between the variables. To solve this problem, a technique was used called variational inference (Kingma and Welling, 2014; Rezende et al., 2014). This means that ...
+
 
 ## Reproduction & Parameter Tuning
 For the reproduction assignment of the paper *Semi-supervised Learning with Deep Generative Models*, the authors of the reproduction were tasked with evaluating table 1 from the report. This table displays benchmark results of the semi-supervised classification on the MNIST dataset with a varying number of labelled training points (N).
@@ -39,3 +54,9 @@ This function can be called from the terminal just as the original code was mean
 python run_2layer_ssl.py [n_labels] [seed] [n_training]
 ```
 where where `n_labels` is the number of labels, `seed` is the random seed for Numpy and `n_training` the size of the trainingset.
+
+## Results
+
+## Conclusion
+
+## Discussion
