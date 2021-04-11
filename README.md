@@ -56,6 +56,14 @@ python run_2layer_ssl.py [n_labels] [seed] [n_training]
 where where `n_labels` is the number of labels, `seed` is the random seed for Numpy and `n_training` the size of the trainingset.
 
 ## Results
+| Number of Training Points | N | Total T_{CPU} [h] | Converged Epoch | Converged $T_{CPU}$ [h] | Accuracy |
+---  | --- | --- | --- | --- | --- |
+| 10000 |	600	 | 22.3	  | 699 | 5.196 |	0.0398 |
+| 20000	| 1200 | 14.017	| 868	| 4.056	| 0.031 |
+| 50000	| 3000 |	48.0	| 885	| 14.16	| 0.0413 |
+
+
+
 
 ## Conclusion
 
