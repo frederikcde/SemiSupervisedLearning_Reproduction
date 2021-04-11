@@ -53,7 +53,9 @@ This function can be called from the terminal just as the original code was mean
 ```
 python run_2layer_ssl.py [n_labels] [seed] [n_training]
 ```
-where where `n_labels` is the number of labels, `seed` is the random seed for Numpy and `n_training` the size of the trainingset.
+where where `n_labels` is the number of labels, `seed` is the random seed for Numpy and `n_training` the size of the trainingset. 
+#### Note
+For all runs of the M1+M2 stacked model, `seed = 0` is used. Furthermore, as the ratio of labelled training points vs total training points is to remain the same for a valid outcome, this needs to be computed and correctly set for `n_labels` when the algorithm is run. The exact values can be found in the table in the results section.
 
 ## Results
 | Number of Training Points | N | Total T_{CPU} [h] | Converged Epoch | Converged $T_{CPU}$ [h] | Accuracy |
