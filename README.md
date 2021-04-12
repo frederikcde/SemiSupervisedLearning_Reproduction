@@ -58,11 +58,11 @@ where where `n_labels` is the number of labels, `seed` is the random seed for Nu
 For all runs of the M1+M2 stacked model, `seed = 0` is used. Furthermore, as the ratio of labelled training points vs total training points is to remain the same for a valid outcome, this needs to be computed and correctly set for `n_labels` when the algorithm is run. The exact values can be found in the table in the results section.
 
 ## Results
-| Number of Training Points | N | Total T_{CPU} [h] | Converged Epoch | Converged $T_{CPU}$ [h] | Accuracy |
----  | --- | --- | --- | --- | --- |
-| 10000 |	600	 | 22.3	  | 699 | 5.196 |	0.0398 |
-| 20000	| 1200 | 14.017	| 868	| 4.056	| 0.031 |
-| 50000	| 3000 |	48.0	| 885	| 14.16	| 0.0413 |
+| Number of Training Points |    N |   Total $T_{CPU}$ [h] |   Converged Epoch |   Converged $T_{CPU}$ [h] |   Accuracy |
+|------:|-----:|----------------------:|------------------:|--------------------------:|-----------:|
+| 10000 |  600 |                22.3   |               699 |                     5.196 |     0.0398 |
+| 20000 | 1200 |                14.017 |               868 |                     4.056 |     0.031  |
+| 50000 | 3000 |                48     |               799 |                    12.784 |     0.0245 |
 
 
 
