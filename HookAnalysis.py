@@ -197,3 +197,7 @@ for current_evaluation in algorithm_evaluation_specifics.keys():
 
 output_file_columns = ["N", "Total $T_{CPU}$ [h]", "Converged Epoch", "Converged $T_{CPU}$ [h]", "Accuracy"]
 output_table = pd.DataFrame(data=algorithm_evaluation_specifics.values(), columns=output_file_columns, index=algorithm_evaluation_specifics.keys())
+
+file = output_dir + "/results_table.txt"
+with open(file, "w") as file_to_write:
+    file_to_write.write(output_table.to_markdown())
