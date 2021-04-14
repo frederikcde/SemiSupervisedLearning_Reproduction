@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Nov 25 10:21:32 2020
 
 VERSTION:
-    1.0
+    3.0
 
 AUTHORS: 
     Emile Lampe
@@ -31,12 +28,14 @@ NEURAL NETWORK CODE ORIGINAL REPOSITORY:
     
 """
 
-# Import Statements
+# General Import Statements
 import os
-import math as m
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+
+# Reproduction specific Import Statements
+import HookUtilities as Util
 
 plt.close("all")
 
@@ -55,7 +54,7 @@ if os.path.exists(output_dir) == False:
     os.mkdir(output_dir)
 
 # Define training set sizes to analyse
-training_set_sizes = [10000, 20000]
+training_set_sizes = [10000, 20000, 30000]
 
 # Define benchmark hook file
 benchmark_sample_size = 50000
@@ -66,8 +65,9 @@ benchmark_hook = np.genfromtxt(benchmark_file_name)
 
 # Make dictionary with run specifics
 # Sample size : [labels, hours]
-algorithm_evaluation_specifics = { 10000 : [600, 22.300],
-                                   20000 : [1200, 14.017],
+algorithm_evaluation_specifics = { 10000 : [600, 14.017],
+                                   20000 : [1200, 22.300],
+                                   30000 : [1800, 26.433],
                                    50000 : [3000, 48.000]}
 
 # Set font size for plots
@@ -81,7 +81,7 @@ plt.rcParams.update({'font.size': font_size})
 ############### Initialize figures ###############
 
 error_figure = plt.figure(figsize=(15,7))
-error_figure.suptitle("Comparison DGN convergence for different number of training points")
+error_figure.suptitle("Comparison DGN training for different number of training points")
 # Test error Figure
 ax1 = error_figure.add_subplot(121)
 ax1.set_title("Test Error")
@@ -115,7 +115,6 @@ ax4.set_ylabel("$\Delta$ Validation Error [-]")
 ax4.set_xlabel("Epoch Number")
 ax4.grid()
 
-
 # Loop over hook files
 for current_training_set in training_set_sizes:
     # Obtain file
@@ -138,17 +137,17 @@ for current_training_set in training_set_sizes:
     ax3.plot(epochs, delta_test_error, label=f"{current_training_set} w.r.t. benchmark", linestyle="dashed", linewidth=0.5)
     ax4.plot(epochs, delta_valid_error, label=f"{current_training_set} w.r.t. benchmark", linestyle="dashed", linewidth=0.5)
     
-    
+
 ax1.legend()
 ax2.legend()
-ax3.legend()
-ax4.legend()
-
 error_figure.tight_layout()
 error_figure.savefig(output_dir + "error_figure")
 
+ax3.legend()
+ax4.legend()
 delta_figure.tight_layout()
 delta_figure.savefig(output_dir + "delta_figure")
+
 
 ########################################################################
 # PERFORM CONVERGENCE ANALSYIS #########################################
@@ -157,8 +156,22 @@ delta_figure.savefig(output_dir + "delta_figure")
 # Define convergence requirement
 convergence_requirement = 0.001
 
+# Initialize output table dictionaries
+results_dict_1 = dict()
+results_dict_2 = dict()
+
 # Loop over hook files
 for current_evaluation in algorithm_evaluation_specifics.keys():
+    # Obtain benchmark parameters
+    benchmark_test_error = benchmark_hook[:, 4]
+    benchmark_accuracy = sum(benchmark_test_error[-11:-1])/10
+    benchmark_CPU = algorithm_evaluation_specifics[50000][1]
+    benchmark_first_converged_epoch = Util.compute_convergence( benchmark_test_error,
+                                                                convergence_requirement,
+                                                                10 )
+    converged_benchmark_CPU = benchmark_first_converged_epoch/len(benchmark_test_error) * benchmark_CPU
+    converged_benchmark_acc = benchmark_test_error[benchmark_first_converged_epoch]
+
     # Obtain file
     current_file_name = hook_dir + "hook_" + str(current_evaluation) + ".txt"
     current_hook = np.genfromtxt(current_file_name)
@@ -167,37 +180,37 @@ for current_evaluation in algorithm_evaluation_specifics.keys():
     total_CPU_time = current_specifics[1] * 3600
     # Obtain test errors
     current_test_error = current_hook[:, 4]
+    # Obtain epoch 3000 accuracy
+    accuracy = sum(current_test_error[-11:-1])/10
     
-    # Initialize storage list for converged epochs
-    converged_epochs = []
-    
-    # Loop over test error values
-    for error_index in range(110, len(current_test_error)):
-        # Compute current average error over last 10 epochs
-        current_avg_error = np.mean(current_test_error[(error_index-10):error_index])
-        # Compute average error over 10 epochs 100 epochs back
-        previous_avg_error = np.mean(current_test_error[(error_index-110):(error_index-100)])
-        # Compute convergence level
-        convergence_level = (previous_avg_error - current_avg_error)/current_avg_error
-        # Store converged epoch if true
-        if convergence_level < convergence_requirement:
-            converged_epochs.append(error_index)
-    
-    # Obtain output settings
-    first_converged_epoch = min(converged_epochs)
-    accuracy = current_test_error[first_converged_epoch]
+    first_converged_epoch = Util.compute_convergence( current_test_error,
+                                                      convergence_requirement,
+                                                      10 )
+
+    converged_accuracy = current_test_error[first_converged_epoch]
     converged_CPU_time = first_converged_epoch/len(current_test_error) * total_CPU_time
     converged_CPU_time_h = round(converged_CPU_time/3600,3)
-    
+
+    # Obtain deltas w.r.t. benchmark
+    delta_acc_wrt_benchmark = round((accuracy/benchmark_accuracy - 1)  * 100, 2)
+    delta_CPU_wrt_benchmark = round((current_specifics[1]/benchmark_CPU - 1) * 100, 2)
+    delta_converged_acc = round((converged_accuracy/benchmark_accuracy - 1) * 100, 2)
+    delta_converged_CPU = round((converged_CPU_time_h/benchmark_CPU - 1) * 100, 2)
+
     # Update dictionary
-    current_specifics.append(first_converged_epoch) 
-    current_specifics.append(converged_CPU_time_h)
-    current_specifics.append(accuracy)
-    algorithm_evaluation_specifics[ current_evaluation ] = current_specifics
+    results_dict_1[ current_evaluation ] = [current_specifics[0], accuracy, current_specifics[1], delta_acc_wrt_benchmark, delta_CPU_wrt_benchmark]
+    results_dict_2[ current_evaluation ] = [current_specifics[0], first_converged_epoch, converged_accuracy, converged_CPU_time_h, delta_converged_acc, delta_converged_CPU]
 
-output_file_columns = ["N", "Total $T_{CPU}$ [h]", "Converged Epoch", "Converged $T_{CPU}$ [h]", "Accuracy"]
-output_table = pd.DataFrame(data=algorithm_evaluation_specifics.values(), columns=output_file_columns, index=algorithm_evaluation_specifics.keys())
+output_file1_columns = ["N", "Accuracy", "Total CPU time [h]", "Accuracy w.r.t. Benchmark [%]", "CPU time w.r.t. Benchmark [%]"]
+output_file2_columns = ["N", "Converged Epoch", "Converged Accuracy", "Converged CPU time [h]", "Converged Accuracy w.r.t. Benchmark [%]", "Converged CPU time w.r.t. Benchmark [%]"]
 
-file = output_dir + "/results_table.txt"
-with open(file, "w") as file_to_write:
-    file_to_write.write(output_table.to_markdown())
+# Save first results to txt
+Util.save_markdown_2txt( results_dict_1.values(),
+                         "results_table_1.txt",
+                         output_file1_columns,
+                         results_dict_1.keys() )
+# Save second results to txt
+Util.save_markdown_2txt( results_dict_2.values(),
+                         "results_table_2.txt",
+                         output_file2_columns,
+                         results_dict_2.keys() )
