@@ -82,30 +82,37 @@ Furthermore, in the following figure, the difference in validation- and test-err
 
 Conforming to the expectations, we see a definite increase in (both validation- and) testing error for a decreasing training set size. Furthermore, the rate at which the error is decreased is lower for the smaller training sets. Again this is expected behaviour. Furthermore, what can be observed from the Delta figure (w.r.t. benchmark), is that the difference w.r.t. the benchmark is relatively big at the first 500 epochs but after that levels out to an appearantly near constant difference. The accuracy (averaged over the past 10 epochs) after 3000 epochs and its respective required CPU time is presented in the following table:
 
+#### Note
+The benchmark case in these comparisons is the non-truncated training of the algorithm using 50000 samples.
+
 
 |  Training Set Size   |    N |   Error |   Total CPU time [h] |   Error w.r.t. Benchmark [%] |   CPU time w.r.t. Benchmark [%] |
 |------:|-----:|-----------:|---------------------:|--------------------------------:|--------------------------------:|
-| 10000 |  600 |    0.03108 |               14.017 |                          -42.5  |                           70.8  |
-| 20000 | 1200 |    0.02737 |               22.3   |                          -25.49 |                           53.54 |
-| 30000 | 1800 |    0.02341 |               26.433 |                           -7.34 |                           44.93 |
-|(benchmark) **50000 | 3000 |    0.02181 |               48     |                           -0    |                           -0    |**
+| 10000 |  600 |    0.03108 |               14.02 |                          42.5  |                           -70.8  |
+| 20000 | 1200 |    0.02737 |               22.3   |                          25.49 |                           -53.54 |
+| 30000 | 1800 |    0.02341 |               26.43 |                           7.34 |                           -44.93 |
+|(benchmark) **50000** | **3000** |    **0.02181** |               **48**     |                           **0**    |                           **0**    |
 
 Furthermore, from the plots, the potential of early stopping is evident. Results improve little to none after epoch 1500 for all training set sizes. The implementation of the general truncation criterium as discussed previously yields some interesting results. The convergence criterium was defined as follows:
 If the average accuracy over the last 10 epochs (@ epoch `t`) falls to within the `convergence_requirement` (set by user) of the average 10 epoch accuracy at epoch `t-100`, convergence is met. In this case the user defined parameter was set as `convergence_requirement = 0.1%`. The results of running this convergence analysis is presented in the following table. The hypothesis is that one truncates (early stops) the training of the algorithm after the criterium is met.
 
 |   Training Set Size    |    N |   Converged Epoch |   Converged Error |   Converged CPU time [h] |   Converged Error w.r.t. Benchmark [%] |   Converged CPU time w.r.t. Benchmark [%] |
 |------:|-----:|------------------:|---------------------:|-------------------------:|------------------------------------------:|------------------------------------------:|
-| 10000 |  600 |               699 |               0.0398 |                    3.266 |                  -82.49 |                                     93.2  |
-| 20000 | 1200 |               868 |               0.031  |                    6.452 |                  -42.14 |                                     86.56 |
-| 30000 | 1800 |               834 |               0.0275 |                    7.348 |                  -26.09 |                                     84.69 |
-| 50000 | 3000 |               799 |               0.0245 |                   12.784 |                  -12.33 |                                     73.37 |
+| 10000 |  600 |               699 |               0.049 |                    3.27 |                  82.49 |                                     -93.2  |
+| 20000 | 1200 |               868 |               0.031 |                    6.45 |                  42.14 |                                     -86.56 |
+| 30000 | 1800 |               834 |               0.028 |                    7.35 |                  26.09 |                                     -84.69 |
+| 50000 | 3000 |               799 |               0.025 |                   12.78 |                  12.33 |                                     -73.37 |
 
-Again, we find some logical results. For the decreased training set sizes, the error is greater and the CPU-time is less. Furthermore, as to our expectations, (generally) the convergence criterium is achieved at lower epochs for the bigger training set sizes. 
+Again, we find some logical results. For the decreased training set sizes, the error is greater and the CPU-time is less. Furthermore, as to our expectations, (generally) the convergence criterium is achieved at lower epochs for the bigger training set sizes. However, for the training set using 10000 samples, convergence is met sooner than expected (prematurely). As one can see from the first graphs, the errors for the 10000 sample training set move in a more erratic manner. It could therefore be that the average over 10 samples, or comparing to the average at 100 epochs previously, does not suffice to prevent this from happening. Further tuning of the convergence parameters would be required to smoot this out.
 
 ## What do these results mean?
 The results of our experiments show that while training with a dataset of 50.000 images does result in a lower test error, the difference with a training dataset of 30.000 images is very small. The benchmark experiment took 48 hours to run, while the experiment with 30.000 images took 30,6 hours to run. This means that a 44.9% increase in CPU time can be obtained at a cost of 'only' 7.35% accuracy. The results themselves are impressive, because having a dataset of 30.000 images means that only 1800 of them were labelled. It shows that the semi-supervised learning algorithm proposed in the paper works very well, even with smaller datasets and less labelled images.
 
 When looking at the training set of 20.000, the validation error seems to be almost as good as when the model was trained on 30.000 images, while the test error shows a small but significant difference. This suggests that training the model on 20.000 images could result in slight overfitting. Overfitting is often a result of training on a set that is too small. Therefore, training this algorithm for the MNIST dataset with less than 30.000 images isn’t recommended. In the hypothetical case where there are only 20.000 images available to train on, regularization techniques such as dropout could be tried to decrease the difference between the validation and test error.
+
+( **misschien hier nog wel een stukje over wat het verlies van nauwkeurigheid (increase in error) nou precies 'in real life' betekent. Boeit een error increase van 12% iets of maakt het niet uit, etc**)
+
+Furthermore what we can see from the second table, is that the early stopping of the algorithm yields massive gains in CPU time (up to 93% w.r.t. benchmark for the 10000 training samples). However, the errors also siginifcantly increase (up to 83% for the 10000 sample case). When the two tables are compared however, is that the truncation of the algorithm using 50000 samples (using the current truncation criteria) yields better results than the use of the algorithm trained using 10000 samples. The CPU time is lower (12.8 h compared to 14.0 h) and the error rates are as well (12.3% increase vs 42.5%). This leads the authors to recommend that during the use of the algorithm, its process can be terminated at an earlier epoch (800 for the 50000 sample case). Furthermore, a truncation feature should be incorporated that automatically truncates the process as soon as a user defined convergence criterium is met.
 
 ## The future of semi-supervised learning
 The experiments done by the original authors and by us show that there is still a lot of room for improvement within the field, but that it can certainly have its place in the world of machine learning. For AI to become useful for the majority of companies, would mean that they would have to be able to use the data that their company produces. This data will often not be labelled, and thus semi-supervised learning could become more important in the coming years when small to medium sized business will start implement machine learning.
