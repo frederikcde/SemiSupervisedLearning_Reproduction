@@ -91,7 +91,7 @@ The benchmark case in these comparisons is the non-truncated training of the alg
 | 10000 |  600 |    0.03108 |               14.02 |                          42.5  |                           -70.8  |
 | 20000 | 1200 |    0.02737 |               22.3   |                          25.49 |                           -53.54 |
 | 30000 | 1800 |    0.02341 |               26.43 |                           7.34 |                           -44.93 |
-|(benchmark) **50000** | **3000** |    **0.02181** |               **48**     |                           **0**    |                           **0**    |
+|**50000** (benchmark) | **3000** |    **0.02181** |               **48**     |                           **0**    |                           **0**    |
 
 Furthermore, from the plots, the potential of early stopping is evident. Results improve little to none after epoch 1500 for all training set sizes. The implementation of the general truncation criterium as discussed previously yields some interesting results. The convergence criterium was defined as follows:
 If the average accuracy over the last 10 epochs (@ epoch `t`) falls to within the `convergence_requirement` (set by user) of the average 10 epoch accuracy at epoch `t-100`, convergence is met. In this case the user defined parameter was set as `convergence_requirement = 0.1%`. The results of running this convergence analysis is presented in the following table. The hypothesis is that one truncates (early stops) the training of the algorithm after the criterium is met.
