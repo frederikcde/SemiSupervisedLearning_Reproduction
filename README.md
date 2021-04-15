@@ -19,10 +19,6 @@ There are multiple approaches towards semi-supervised learning. For this blog po
 *
 The algorithm consists of two different models. The first is the *latent-feature discriminative model (**M1**)*. This model was used to create features of the data that can be used to cluster related observations without most of the labels. M1 is itself a deep generative model, so that the learned features will be more robust than with a linear embedding. The second model is the actual *generative semi-supervised model (**M2**)*. It is a probabilistic model that uses a latent variable y combined with an independent continuous latent variable z to describe the process of generating the data. Because these variables are independent, the class specification can be separated from the writing style of the digit. The unlabelled data is classified as inference, which means that predictions about the data are being made by the existing model. When these two main models are combined, the result is a *stacked generative semi-supervised model (**M1+M2**)*. The first model is used to learn a new latent representation z1, after which the second model is learned using the embeddings of z1.
 
-## Dependencies Between the Random Variables
-In order to create probability distributions for your random variables obtained by experiment or survey, it is necessary to have independent and identically distributed random variables. The models described above do not meet this requirement, as there exist nonlinear, non-conjugate dependencies between the variables. To solve this problem, a technique was used called variational inference (Kingma and Welling, 2014; Rezende et al., 2014). This means that ...
-
-
 ## Reproduction & Parameter Tuning
 For the reproduction assignment of the paper *Semi-supervised Learning with Deep Generative Models*, the authors of the reproduction were tasked with evaluating table 1 from the report. This table displays benchmark results of the semi-supervised classification on the MNIST dataset with a varying number of labelled training points (N).
 
